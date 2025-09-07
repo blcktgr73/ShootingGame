@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>갤러그 스타일 슈팅 게임</title>
+    <link rel="stylesheet" href="src/css/style.css">
+</head>
+<body>
+    <div id="gameContainer">
+        <!-- 메인 메뉴 -->
+        <div id="mainMenu" class="screen">
+            <h1>갤러그 슈터</h1>
+            <div class="menu-buttons">
+                <button id="startBtn" class="menu-btn">게임 시작</button>
+                <button id="highScoreBtn" class="menu-btn">하이스코어</button>
+                <button id="settingsBtn" class="menu-btn">설정</button>
+                <button id="controlsBtn" class="menu-btn">조작법</button>
+            </div>
+        </div>
+
+        <!-- 게임 화면 -->
+        <div id="gameScreen" class="screen hidden">
+            <!-- HUD -->
+            <div id="gameHUD">
+                <div id="scoreDisplay">점수: <span id="score">0</span></div>
+                <div id="stageDisplay">스테이지: <span id="stage">1</span></div>
+                <div id="livesDisplay">
+                    <span id="livesLabel">생명력:</span>
+                    <div id="lives"></div>
+                </div>
+            </div>
+            
+            <!-- 게임 캔버스 -->
+            <canvas id="gameCanvas" width="800" height="600"></canvas>
+            
+            <!-- 보스 체력바 (보스 등장시에만 표시) -->
+            <div id="bossHealthBar" class="hidden">
+                <div class="health-bar-bg">
+                    <div id="bossHealth" class="health-bar-fill"></div>
+                </div>
+                <div id="bossName">BOSS</div>
+            </div>
+            
+            <!-- 파워업 상태 표시 -->
+            <div id="powerUpStatus"></div>
+        </div>
+
+        <!-- 일시정지 메뉴 -->
+        <div id="pauseMenu" class="screen overlay hidden">
+            <h2>일시정지</h2>
+            <div class="menu-buttons">
+                <button id="resumeBtn" class="menu-btn">게임 계속</button>
+                <button id="restartBtn" class="menu-btn">재시작</button>
+                <button id="mainMenuBtn" class="menu-btn">메인 메뉴</button>
+            </div>
+        </div>
+
+        <!-- 게임 오버 화면 -->
+        <div id="gameOverScreen" class="screen overlay hidden">
+            <h2>게임 오버</h2>
+            <div id="finalScore">최종 점수: <span id="finalScoreValue">0</span></div>
+            <div id="newHighScore" class="hidden">🏆 신기록 달성!</div>
+            <div class="menu-buttons">
+                <button id="playAgainBtn" class="menu-btn">다시 플레이</button>
+                <button id="backToMenuBtn" class="menu-btn">메인 메뉴</button>
+            </div>
+        </div>
+
+        <!-- 스테이지 클리어 화면 -->
+        <div id="stageClearScreen" class="screen overlay hidden">
+            <h2>스테이지 클리어!</h2>
+            <div id="stageClearBonus">보너스: <span id="bonusScore">0</span></div>
+            <div class="menu-buttons">
+                <button id="nextStageBtn" class="menu-btn">다음 스테이지</button>
+            </div>
+        </div>
+
+        <!-- 설정 화면 -->
+        <div id="settingsScreen" class="screen overlay hidden">
+            <h2>설정</h2>
+            <div class="settings-options">
+                <div class="setting-item">
+                    <label for="masterVolume">마스터 볼륨:</label>
+                    <input type="range" id="masterVolume" min="0" max="100" value="100">
+                    <span id="masterVolumeValue">100%</span>
+                </div>
+                <div class="setting-item">
+                    <label for="sfxVolume">효과음 볼륨:</label>
+                    <input type="range" id="sfxVolume" min="0" max="100" value="100">
+                    <span id="sfxVolumeValue">100%</span>
+                </div>
+                <div class="setting-item">
+                    <label for="musicVolume">배경음악 볼륨:</label>
+                    <input type="range" id="musicVolume" min="0" max="100" value="100">
+                    <span id="musicVolumeValue">100%</span>
+                </div>
+            </div>
+            <div class="menu-buttons">
+                <button id="saveSettingsBtn" class="menu-btn">저장</button>
+                <button id="cancelSettingsBtn" class="menu-btn">취소</button>
+            </div>
+        </div>
+
+        <!-- 조작법 화면 -->
+        <div id="controlsScreen" class="screen overlay hidden">
+            <h2>조작법</h2>
+            <div class="controls-info">
+                <div class="control-item">
+                    <span class="key">← →</span> 또는 <span class="key">A D</span> : 좌우 이동
+                </div>
+                <div class="control-item">
+                    <span class="key">스페이스바</span> : 총알 발사
+                </div>
+                <div class="control-item">
+                    <span class="key">ESC</span> 또는 <span class="key">P</span> : 일시정지
+                </div>
+                <div class="control-item">
+                    <span class="key">R</span> : 재시작 (게임 오버시)
+                </div>
+            </div>
+            <div class="menu-buttons">
+                <button id="closeControlsBtn" class="menu-btn">닫기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript 파일들 로드 -->
+    <script src="src/js/config.js"></script>
+    <script src="src/js/collision.js"></script>
+    <script src="src/js/bullet.js"></script>
+    <script src="src/js/player.js"></script>
+    <script src="src/js/enemy.js"></script>
+    <script src="src/js/enemySpawner.js"></script>
+    <script src="src/js/main.js"></script>
+</body>
+</html>

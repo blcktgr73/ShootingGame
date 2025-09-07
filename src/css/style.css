@@ -1,0 +1,381 @@
+/* 전역 스타일 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Courier New', monospace;
+    background: linear-gradient(135deg, #000428 0%, #004e92 100%);
+    color: white;
+    overflow: hidden;
+    user-select: none;
+}
+
+#gameContainer {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* 화면 전환 기본 스타일 */
+.screen {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.screen.hidden {
+    display: none;
+}
+
+.overlay {
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(5px);
+}
+
+/* 메인 메뉴 스타일 */
+#mainMenu h1 {
+    font-size: 3rem;
+    margin-bottom: 3rem;
+    text-shadow: 0 0 20px #00ffff, 0 0 40px #00ffff;
+    animation: glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+    from { text-shadow: 0 0 20px #00ffff, 0 0 40px #00ffff; }
+    to { text-shadow: 0 0 30px #00ffff, 0 0 60px #00ffff; }
+}
+
+.menu-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.menu-btn {
+    padding: 15px 30px;
+    font-size: 1.2rem;
+    font-family: inherit;
+    background: linear-gradient(45deg, #1a1a2e, #16213e);
+    color: white;
+    border: 2px solid #00ffff;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 200px;
+}
+
+.menu-btn:hover {
+    background: linear-gradient(45deg, #00ffff, #0080ff);
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+    transform: translateY(-2px);
+}
+
+.menu-btn:active {
+    transform: translateY(0);
+}
+
+/* 게임 화면 스타일 */
+#gameScreen {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+#gameCanvas {
+    background: radial-gradient(ellipse at center, #0f0f23 0%, #000000 100%);
+    border: 2px solid #00ffff;
+    display: block;
+}
+
+/* HUD 스타일 */
+#gameHUD {
+    position: absolute;
+    top: 10px;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+    z-index: 10;
+    font-size: 1.1rem;
+    font-weight: bold;
+}
+
+#scoreDisplay, #stageDisplay {
+    background: rgba(0, 0, 0, 0.7);
+    padding: 8px 15px;
+    border-radius: 5px;
+    border: 1px solid #00ffff;
+}
+
+#livesDisplay {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 8px 15px;
+    border-radius: 5px;
+    border: 1px solid #00ffff;
+}
+
+#lives {
+    display: flex;
+    gap: 5px;
+}
+
+.life-heart {
+    width: 20px;
+    height: 20px;
+    background: #ff0040;
+    transform: rotate(45deg);
+    position: relative;
+}
+
+.life-heart:before,
+.life-heart:after {
+    content: '';
+    width: 20px;
+    height: 20px;
+    position: absolute;
+    left: -10px;
+    top: 0;
+    background: #ff0040;
+    border-radius: 10px;
+}
+
+.life-heart:after {
+    left: 0;
+    top: -10px;
+}
+
+/* 보스 체력바 스타일 */
+#bossHealthBar {
+    position: absolute;
+    top: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 300px;
+    z-index: 10;
+}
+
+.health-bar-bg {
+    width: 100%;
+    height: 20px;
+    background: rgba(0, 0, 0, 0.8);
+    border: 2px solid #ff0040;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.health-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #ff0040, #ff6040);
+    transition: width 0.3s ease;
+    width: 100%;
+}
+
+#bossName {
+    text-align: center;
+    font-weight: bold;
+    color: #ff0040;
+    text-shadow: 0 0 10px #ff0040;
+    margin-top: 5px;
+}
+
+/* 파워업 상태 표시 */
+#powerUpStatus {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    z-index: 10;
+}
+
+.powerup-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 20px;
+    border: 2px solid #00ff00;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    background: rgba(0, 255, 0, 0.2);
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+/* 게임 오버 및 스테이지 클리어 화면 */
+#gameOverScreen h2,
+#stageClearScreen h2 {
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+    text-shadow: 0 0 20px currentColor;
+}
+
+#gameOverScreen h2 {
+    color: #ff0040;
+}
+
+#stageClearScreen h2 {
+    color: #00ff00;
+}
+
+#finalScore, #stageClearBonus {
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+#newHighScore {
+    font-size: 1.2rem;
+    color: #ffff00;
+    margin-bottom: 1rem;
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+}
+
+/* 설정 화면 */
+#settingsScreen h2,
+#controlsScreen h2 {
+    margin-bottom: 2rem;
+}
+
+.settings-options {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.setting-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-size: 1.1rem;
+}
+
+.setting-item label {
+    min-width: 150px;
+    text-align: right;
+}
+
+.setting-item input[type="range"] {
+    width: 200px;
+}
+
+/* 조작법 화면 */
+.controls-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    font-size: 1.1rem;
+}
+
+.control-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.key {
+    background: #333;
+    padding: 5px 10px;
+    border-radius: 5px;
+    border: 1px solid #666;
+    font-weight: bold;
+    color: #00ffff;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 1024px) {
+    #gameCanvas {
+        width: 90vw;
+        height: calc(90vw * 0.75);
+        max-width: 800px;
+        max-height: 600px;
+    }
+    
+    #mainMenu h1 {
+        font-size: 2rem;
+    }
+    
+    .menu-btn {
+        font-size: 1rem;
+        padding: 12px 25px;
+        min-width: 180px;
+    }
+}
+
+@media (max-width: 768px) {
+    #gameHUD {
+        font-size: 0.9rem;
+    }
+    
+    #gameHUD > div {
+        padding: 6px 10px;
+    }
+    
+    #bossHealthBar {
+        width: 250px;
+    }
+    
+    .menu-btn {
+        font-size: 0.9rem;
+        padding: 10px 20px;
+        min-width: 160px;
+    }
+}
+
+/* 유틸리티 클래스 */
+.text-center {
+    text-align: center;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.shake {
+    animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
