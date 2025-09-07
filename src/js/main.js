@@ -260,6 +260,11 @@ class Game {
         // 파티클 효과 업데이트
         this.effectManager.update(deltaTime);
         
+        // 보스 체력바 업데이트
+        const activeEnemies = this.enemyManager.getActiveEnemies();
+        const boss = activeEnemies.find(enemy => enemy.type === 'boss');
+        this.updateBossHealthBar(boss);
+        
         // UI 업데이트
         this.lives = this.player.lives;
         this.updateLivesDisplay();
@@ -278,11 +283,23 @@ class Game {
         // 플레이어와 적 직접 충돌
         this.collisionManager.checkPlayerEnemyCollisions(this.player, activeEnemies);
         
+        // 보스 레이저와 플레이어 충돌 검사
+        activeEnemies.forEach(enemy => {
+            if (enemy.type === 'boss' && enemy.laserActive && enemy.laserHitbox) {
+                if (this.collisionManager.checkAABB(this.player, enemy.laserHitbox)) {
+                    this.collisionManager.triggerCallback('playerHit', this.player, null, true);
+                }
+            }
+        });
+        
         // 플레이어와 파워업 충돌
         this.collisionManager.checkPlayerPowerupCollisions(this.player, this.powerups);
     }
 
     render() {
+        // 화면 진동 효과 적용
+        this.applyScreenShake();
+        
         // 화면 클리어
         this.ctx.fillStyle = GAME_CONFIG.canvas.backgroundColor;
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
@@ -314,6 +331,24 @@ class Game {
             this.ctx.textAlign = 'center';
             this.ctx.fillText('게임을 시작해주세요', this.canvas.width / 2, this.canvas.height / 2);
             this.ctx.fillText('메뉴에서 "게임 시작" 클릭', this.canvas.width / 2, this.canvas.height / 2 + 40);
+        }
+        
+        // 화면 진동 효과 복원
+        this.ctx.restore();
+    }
+    
+    applyScreenShake() {
+        // 보스의 화면 진동 효과 확인
+        const activeEnemies = this.enemyManager.getActiveEnemies();
+        const boss = activeEnemies.find(enemy => enemy.type === 'boss');
+        
+        if (boss && boss.screenShakeIntensity > 0) {
+            this.ctx.save();
+            const shakeX = (Math.random() - 0.5) * boss.screenShakeIntensity;
+            const shakeY = (Math.random() - 0.5) * boss.screenShakeIntensity;
+            this.ctx.translate(shakeX, shakeY);
+        } else {
+            this.ctx.save();
         }
     }
 
@@ -379,18 +414,24 @@ class Game {
     }
 
     pauseGame() {
+        console.log('pauseGame() called, current state:', this.state);
         if (this.state === GAME_CONFIG.gameStates.PLAYING) {
             this.state = GAME_CONFIG.gameStates.PAUSED;
             document.getElementById('pauseMenu').classList.remove('hidden');
-            console.log('게임 일시정지');
+            console.log('게임 일시정지 - 상태 변경됨:', this.state);
+        } else {
+            console.log('일시정지 실패 - 현재 상태가 PLAYING이 아님');
         }
     }
 
     resumeGame() {
+        console.log('resumeGame() called, current state:', this.state);
         if (this.state === GAME_CONFIG.gameStates.PAUSED) {
             this.state = GAME_CONFIG.gameStates.PLAYING;
             document.getElementById('pauseMenu').classList.add('hidden');
-            console.log('게임 재개');
+            console.log('게임 재개 - 상태 변경됨:', this.state);
+        } else {
+            console.log('재개 실패 - 현재 상태가 PAUSED가 아님');
         }
     }
 
@@ -415,6 +456,11 @@ class Game {
         document.getElementById('gameOverScreen').classList.remove('hidden');
         
         console.log('게임 오버');
+    }
+
+    stageComplete() {
+        // stageComplete는 stageClear와 동일한 기능
+        this.stageClear();
     }
 
     stageClear() {
@@ -502,6 +548,38 @@ class Game {
             const heart = document.createElement('div');
             heart.className = 'life-heart';
             livesContainer.appendChild(heart);
+        }
+    }
+
+    updateBossHealthBar(boss) {
+        const bossHealthBar = document.getElementById('bossHealthBar');
+        const bossHealth = document.getElementById('bossHealth');
+        const bossName = document.getElementById('bossName');
+        
+        if (boss && boss.active) {
+            // 보스 체력바 표시
+            bossHealthBar.classList.remove('hidden');
+            
+            // 체력 비율 계산
+            const healthPercentage = (boss.health / boss.maxHealth) * 100;
+            bossHealth.style.width = `${healthPercentage}%`;
+            
+            // 체력에 따른 색상 변경
+            if (healthPercentage > 60) {
+                bossHealth.style.backgroundColor = '#ff4444';
+            } else if (healthPercentage > 30) {
+                bossHealth.style.backgroundColor = '#ff8844';
+            } else {
+                bossHealth.style.backgroundColor = '#ffaa44';
+            }
+            
+            // 보스 이름 설정 (페이즈에 따라 변경)
+            const phaseNames = ['BOSS', 'BOSS - PHASE 2', 'BOSS - FINAL PHASE'];
+            bossName.textContent = phaseNames[boss.currentPhase - 1] || 'BOSS';
+            
+        } else {
+            // 보스 체력바 숨기기
+            bossHealthBar.classList.add('hidden');
         }
     }
 
@@ -633,6 +711,48 @@ window.DEBUG_getWaveInfo = () => {
     }
 };
 
+window.DEBUG_getGameState = () => {
+    if (game) {
+        console.log('Current Game State:', game.state);
+        console.log('Available States:', GAME_CONFIG.gameStates);
+        console.log('Is Paused:', game.state === GAME_CONFIG.gameStates.PAUSED);
+        return game.state;
+    }
+};
+
+window.DEBUG_jumpToStage = (stage = 5) => {
+    if (game && (game.state === GAME_CONFIG.gameStates.PLAYING || game.state === GAME_CONFIG.gameStates.PAUSED)) {
+        // 일시정지 상태라면 게임 재개
+        if (game.state === GAME_CONFIG.gameStates.PAUSED) {
+            game.state = GAME_CONFIG.gameStates.PLAYING;
+            document.getElementById('pauseMenu').classList.add('hidden');
+        }
+        
+        // 현재 적들 모두 제거
+        game.enemyManager.clear();
+        
+        // 스테이지 설정
+        game.stage = stage;
+        game.updateStageDisplay();
+        
+        // 새 스테이지 시작
+        game.enemyManager.startStage(stage, (result) => {
+            if (result === 'stage_complete') {
+                game.stageComplete();
+            }
+        });
+        
+        console.log(`Jumped to stage ${stage}`);
+        
+        // 보스 스테이지인지 확인
+        if (GAME_CONFIG.stages.bossStages.includes(stage)) {
+            console.log(`Boss stage detected! Boss will spawn shortly.`);
+        }
+    } else {
+        console.log('Game must be in PLAYING or PAUSED state to jump stages. Start the game first!');
+    }
+};
+
 console.log('갤러그 슈터 게임이 로드되었습니다!');
 console.log('디버그 명령어:');
 console.log('- DEBUG_toggleGodMode()');
@@ -641,3 +761,5 @@ console.log('- DEBUG_toggleFPS()');
 console.log('- DEBUG_spawnEnemy(type, count) - 적 강제 생성');
 console.log('- DEBUG_skipWave() - 현재 웨이브 스킵');
 console.log('- DEBUG_getWaveInfo() - 웨이브 정보 확인');
+console.log('- DEBUG_jumpToStage(stage) - 특정 스테이지로 이동 (기본값: 5)');
+console.log('- DEBUG_getGameState() - 현재 게임 상태 확인');

@@ -326,17 +326,22 @@ class EnemySpawner {
             case 'heavy':
                 enemy = new Heavy(x, y);
                 break;
+            case 'boss':
+                enemy = new Boss(x, y);
+                break;
             default:
                 enemy = new Grunt(x, y);
                 break;
         }
         
-        // 난이도에 따른 조정
-        enemy.speed *= this.difficultyMultiplier;
-        enemy.vy *= this.difficultyMultiplier;
-        
-        if (enemy.fireRate > 0) {
-            enemy.fireRate = Math.max(500, enemy.fireRate / this.difficultyMultiplier);
+        // 난이도에 따른 조정 (보스는 제외)
+        if (type !== 'boss') {
+            enemy.speed *= this.difficultyMultiplier;
+            enemy.vy *= this.difficultyMultiplier;
+            
+            if (enemy.fireRate > 0) {
+                enemy.fireRate = Math.max(500, enemy.fireRate / this.difficultyMultiplier);
+            }
         }
         
         return enemy;
@@ -389,7 +394,7 @@ class EnemyManager {
         this.pool = {}; // 타입별 객체 풀
         
         // 각 타입별 풀 초기화
-        ['grunt', 'rusher', 'shooter', 'zigzag', 'heavy'].forEach(type => {
+        ['grunt', 'rusher', 'shooter', 'zigzag', 'heavy', 'boss'].forEach(type => {
             this.pool[type] = [];
         });
     }
